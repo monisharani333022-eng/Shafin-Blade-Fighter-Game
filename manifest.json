@@ -1,0 +1,28 @@
+﻿{
+  "name": "Shafin Blade Fighter 3D",
+  "short_name": "BladeFighter",
+  "description": "Epic 3D cross-platform fighting game featuring Shafin, Nafis, Tamim, Hamza & Aavon",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#060408",
+  "theme_color": "#ffd700",
+  "categories": ["games", "entertainment"],
+  "lang": "en",
+  "dir": "ltr",
+  "prefer_related_applications": false,
+  "screenshots": [
+    { "src": "./assets/images/arena_cyber_city.jpg", "sizes": "1280x720", "type": "image/jpeg", "label": "Arena" }
+  ],
+  "icons": [
+    { "src": "./assets/icons/icon-72.png",  "sizes": "72x72",   "type": "image/png", "purpose": "maskable any" },
+    { "src": "./assets/icons/icon-96.png",  "sizes": "96x96",   "type": "image/png", "purpose": "maskable any" },
+    { "src": "./assets/icons/icon-128.png", "sizes": "128x128", "type": "image/png", "purpose": "maskable any" },
+    { "src": "./assets/icons/icon-144.png", "sizes": "144x144", "type": "image/png", "purpose": "maskable any" },
+    { "src": "./assets/icons/icon-152.png", "sizes": "152x152", "type": "image/png", "purpose": "maskable any" },
+    { "src": "./assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable any" },
+    { "src": "./assets/icons/icon-384.png", "sizes": "384x384", "type": "image/png", "purpose": "maskable any" },
+    { "src": "./assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable any" }
+  ]
+}

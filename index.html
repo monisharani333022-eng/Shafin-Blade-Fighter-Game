@@ -1,0 +1,303 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+
+  <!-- PWA Meta Tags -->
+  <meta name="theme-color" content="#ffd700">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="BladeFighter">
+  <meta name="application-name" content="Shafin Blade Fighter 3D">
+  <meta name="description" content="Epic 3D cross-platform fighting game for Android and Desktop">
+  <meta name="msapplication-TileColor" content="#060408">
+  <meta name="msapplication-TileImage" content="assets/icons/icon-144.png">
+
+  <!-- Apple Touch Icons (iOS Home Screen) -->
+  <link rel="apple-touch-icon" sizes="152x152" href="assets/icons/icon-152.png">
+  <link rel="apple-touch-icon" sizes="192x192" href="assets/icons/icon-192.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" sizes="96x96" href="assets/icons/icon-96.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png">
+
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.json">
+
+  <title>Shafin Blade Fighter 3D</title>
+  <link rel="stylesheet" href="css/style.css">
+
+  <style>
+    /* PWA Install Banner */
+    #pwa-banner {
+      display: none;
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      z-index: 9999;
+      background: linear-gradient(135deg, rgba(10,8,18,0.97), rgba(20,15,30,0.97));
+      border-top: 2px solid #ffd700;
+      padding: 14px 20px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      box-shadow: 0 -4px 24px rgba(255,215,0,0.25);
+      backdrop-filter: blur(12px);
+    }
+    #pwa-banner.show { display: flex; }
+    .pwa-banner-left { display: flex; align-items: center; gap: 12px; }
+    .pwa-banner-icon { width: 52px; height: 52px; border-radius: 12px; border: 2px solid #ffd700; }
+    .pwa-banner-text h4 { margin: 0 0 2px; font-size: 15px; color: #ffd700; font-family: Orbitron, sans-serif; font-weight: 900; }
+    .pwa-banner-text p  { margin: 0; font-size: 12px; color: #aaa; font-family: Orbitron, sans-serif; }
+    .pwa-banner-btns { display: flex; gap: 10px; align-items: center; flex-shrink: 0; }
+    .pwa-btn-install {
+      background: #ffd700; color: #000; border: none; border-radius: 8px;
+      padding: 10px 20px; font-size: 14px; font-weight: 900;
+      font-family: Orbitron, sans-serif; cursor: pointer;
+      box-shadow: 0 0 16px rgba(255,215,0,0.6);
+      transition: transform 0.1s;
+    }
+    .pwa-btn-install:active { transform: scale(0.95); }
+    .pwa-btn-dismiss {
+      background: transparent; color: #666; border: 1px solid #333;
+      border-radius: 8px; padding: 10px 14px; font-size: 12px;
+      font-family: Orbitron, sans-serif; cursor: pointer;
+    }
+
+    /* Update toast */
+    #pwa-update-toast {
+      display: none; position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
+      background: rgba(20,16,30,0.95); border: 1.5px solid #00d2ff; color: #00e5ff;
+      padding: 12px 24px; border-radius: 30px; font-family: Orbitron, sans-serif;
+      font-size: 13px; z-index: 9999; cursor: pointer;
+      box-shadow: 0 0 20px rgba(0,210,255,0.4);
+    }
+    #pwa-update-toast.show { display: block; }
+  </style>
+</head>
+<body>
+  <div id="game-container">
+    <canvas id="game-canvas"></canvas>
+
+    <div id="ui-overlay">
+      <div class="top-bar">
+        <div class="top-bar-left">
+          <button id="btn-moves" class="icon-btn">📜 MOVES</button>
+          <button id="btn-toggle-ctrl" class="icon-btn">🎮 CONTROLS</button>
+          <a id="btn-download" href="download-game" class="icon-btn"
+             style="text-decoration:none;background:rgba(0,180,255,0.25);border-color:#00d2ff;color:#00e5ff;">
+            📥 DOWNLOAD
+          </a>
+        </div>
+        <div class="top-bar-right">
+          <button id="btn-install-top" class="icon-btn"
+            style="background:rgba(255,170,0,0.35);border-color:#ffd700;color:#ffd700;display:none;">
+            📱 INSTALL APP
+          </button>
+          <button id="btn-mute" class="icon-btn">🔊</button>
+          <button id="btn-fullscreen" class="icon-btn">⛶</button>
+        </div>
+      </div>
+
+      <!-- Android Virtual Touch Controller -->
+      <div id="touch-controls">
+        <div id="joystick-zone">
+          <div id="joystick-base">
+            <span class="stick-arrow arrow-up">▲</span>
+            <span class="stick-arrow arrow-down">▼</span>
+            <span class="stick-arrow arrow-left">◀</span>
+            <span class="stick-arrow arrow-right">▶</span>
+            <div id="joystick-knob"></div>
+          </div>
+        </div>
+        <div class="action-buttons">
+          <button class="btn-action btn-punch">LP<span class="key-hint">PUNCH</span></button>
+          <button class="btn-action btn-blade">HP<span class="key-hint">HEAVY</span></button>
+          <button class="btn-action btn-special">SP<span class="key-hint">SKILL</span></button>
+          <button class="btn-action btn-kick">LK<span class="key-hint">KICK</span></button>
+          <button class="btn-action btn-block">BLK<span class="key-hint">GUARD</span></button>
+          <button class="btn-action btn-super">EX<span class="key-hint">SUPER</span></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rotate Screen Prompt (portrait mode warning) -->
+    <div id="landscape-prompt">
+      <div style="text-align:center;padding:20px;">
+        <div style="font-size:64px;margin-bottom:16px;">📱↻</div>
+        <h2 style="color:#ffd700;font-family:Orbitron,sans-serif;margin-bottom:12px;">ROTATE YOUR PHONE</h2>
+        <p style="color:#aaa;font-family:Orbitron,sans-serif;font-size:14px;max-width:300px;">
+          Please rotate to <strong style="color:#fff">landscape mode</strong> for the full 3D fighting experience!
+        </p>
+      </div>
+    </div>
+
+    <!-- Moves Modal -->
+    <div id="modal-moves" class="game-modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>COMBAT GUIDE</h3>
+          <button id="btn-close-modal" class="close-btn">&times;</button>
+        </div>
+        <table class="moves-table">
+          <thead><tr><th>Action</th><th>Desktop P1</th><th>Android</th></tr></thead>
+          <tbody>
+            <tr><td>Move / Jump / Crouch</td><td><span class="tag-gold">W A S D</span></td><td>Analog Stick</td></tr>
+            <tr><td>Light Punch (LP)</td><td><span class="tag-gold">J</span></td><td>LP Button</td></tr>
+            <tr><td>Heavy / Blade (HP)</td><td><span class="tag-gold">K</span></td><td>HP Button</td></tr>
+            <tr><td>Kick (LK)</td><td><span class="tag-gold">L</span></td><td>LK Button</td></tr>
+            <tr><td>Block / Guard</td><td><span class="tag-gold">U</span></td><td>BLK Button</td></tr>
+            <tr><td>Special 1</td><td><span class="tag-gold">I</span></td><td>SP Button</td></tr>
+            <tr><td>Special 2 (Projectile)</td><td><span class="tag-gold">S + I</span></td><td>Down + SP</td></tr>
+            <tr><td>SUPER (100% meter)</td><td><span class="tag-gold">O</span></td><td>EX Button</td></tr>
+            <tr><td colspan="3" style="text-align:center;color:#ff9900;padding-top:10px;">
+              P2: Arrow Keys + Numpad 1-6
+            </td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- PWA Install Banner (auto-shown on Android Chrome) -->
+  <div id="pwa-banner">
+    <div class="pwa-banner-left">
+      <img src="assets/icons/icon-96.png" class="pwa-banner-icon" alt="Game Icon">
+      <div class="pwa-banner-text">
+        <h4>INSTALL SHAFIN BLADE FIGHTER</h4>
+        <p>Add to home screen for fullscreen offline play!</p>
+      </div>
+    </div>
+    <div class="pwa-banner-btns">
+      <button class="pwa-btn-install" id="pwa-install-btn">⚡ INSTALL</button>
+      <button class="pwa-btn-dismiss" id="pwa-dismiss-btn">✕</button>
+    </div>
+  </div>
+
+  <!-- Update Available Toast -->
+  <div id="pwa-update-toast" id="pwa-update">🔄 Update available — tap to reload</div>
+
+  <!-- 3D Engine -->
+  <script src="js/engine/three.min.js"></script>
+  <script src="js/engine/ThreeEngine.js"></script>
+
+  <!-- Game Engine -->
+  <script src="js/engine/Sound.js"></script>
+  <script src="js/engine/Input.js"></script>
+  <script src="js/engine/Physics.js"></script>
+  <script src="js/effects/Particle.js"></script>
+  <script src="js/effects/Camera.js"></script>
+
+  <!-- 5 Fighters -->
+  <script src="js/entities/Fighter3D.js"></script>
+  <script src="js/entities/Shafin3D.js"></script>
+  <script src="js/entities/Nafis3D.js"></script>
+  <script src="js/entities/Tamim3D.js"></script>
+  <script src="js/entities/Hamza3D.js"></script>
+  <script src="js/entities/Aavon3D.js"></script>
+  <script src="js/entities/AI.js"></script>
+
+  <!-- Scenes -->
+  <script src="js/scenes/TitleScene.js"></script>
+  <script src="js/scenes/SelectScene.js"></script>
+  <script src="js/scenes/VersusScene.js"></script>
+  <script src="js/scenes/FightScene.js"></script>
+  <script src="js/scenes/VictoryScene.js"></script>
+  <script src="js/engine/Game.js"></script>
+  <script src="js/main.js"></script>
+
+  <script>
+  // ── PWA Registration & Install Prompt ──────────────────────────
+  let swReg = null;
+  let deferredInstallPrompt = null;
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js').then(reg => {
+      swReg = reg;
+      console.log('[PWA] Service Worker registered:', reg.scope);
+
+      // Detect new SW waiting (update available)
+      reg.addEventListener('updatefound', () => {
+        const newSW = reg.installing;
+        newSW.addEventListener('statechange', () => {
+          if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
+            // Show update toast
+            const toast = document.getElementById('pwa-update-toast');
+            if (toast) { toast.classList.add('show'); }
+          }
+        });
+      });
+    }).catch(err => console.warn('[PWA] SW registration failed:', err));
+  }
+
+  // Click update toast to refresh
+  const updateToast = document.getElementById('pwa-update-toast');
+  if (updateToast) {
+    updateToast.addEventListener('click', () => {
+      if (swReg && swReg.waiting) {
+        swReg.waiting.postMessage({ type: 'SKIP_WAITING' });
+      }
+      window.location.reload();
+    });
+  }
+
+  // ── Install Banner Logic ──────────────────────────────────────
+  const banner       = document.getElementById('pwa-banner');
+  const installBtn   = document.getElementById('pwa-install-btn');
+  const dismissBtn   = document.getElementById('pwa-dismiss-btn');
+  const installTopBtn = document.getElementById('btn-install-top');
+
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    deferredInstallPrompt = e;
+
+    // Show banner after 3 seconds
+    setTimeout(() => { if (banner) banner.classList.add('show'); }, 3000);
+    if (installTopBtn) installTopBtn.style.display = 'inline-flex';
+  });
+
+  async function triggerInstall() {
+    if (!deferredInstallPrompt) {
+      alert('To install:\n\nAndroid Chrome → tap ⋮ menu → "Add to Home screen" or "Install app"\n\niOS Safari → tap Share → "Add to Home Screen"');
+      return;
+    }
+    banner.classList.remove('show');
+    deferredInstallPrompt.prompt();
+    const { outcome } = await deferredInstallPrompt.userChoice;
+    console.log('[PWA] Install outcome:', outcome);
+    if (outcome === 'accepted') {
+      if (installTopBtn) installTopBtn.style.display = 'none';
+    }
+    deferredInstallPrompt = null;
+  }
+
+  if (installBtn)    installBtn.addEventListener('click', triggerInstall);
+  if (installTopBtn) installTopBtn.addEventListener('click', triggerInstall);
+  if (dismissBtn)    dismissBtn.addEventListener('click', () => banner.classList.remove('show'));
+
+  window.addEventListener('appinstalled', () => {
+    console.log('[PWA] App installed successfully!');
+    if (banner)       banner.classList.remove('show');
+    if (installTopBtn) installTopBtn.style.display = 'none';
+    deferredInstallPrompt = null;
+  });
+
+  // ── UI Buttons ────────────────────────────────────────────────
+  const btnToggleCtrl = document.getElementById('btn-toggle-ctrl');
+  if (btnToggleCtrl) {
+    btnToggleCtrl.addEventListener('click', () => {
+      if (window.inputManager) {
+        const on = window.inputManager.toggleTouchControls();
+        btnToggleCtrl.textContent = on ? '🎮 ON' : '🎮 OFF';
+      }
+    });
+  }
+
+  // Lock to landscape on mobile
+  if (screen.orientation && screen.orientation.lock) {
+    screen.orientation.lock('landscape').catch(() => {});
+  }
+  </script>
+</body>
+</html>
