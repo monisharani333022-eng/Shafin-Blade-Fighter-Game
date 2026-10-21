@@ -58,7 +58,7 @@
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/monisharani333022-eng/Shafin-Blade-Fighter-Game.git
+   git clone https://github.com/Jubayer-AI-Studio/Shafin-Blade-Fighter-Game.git
    cd Shafin-Blade-Fighter-Game
    ```
 
@@ -74,8 +74,8 @@
 
 ## 👤 Author
 
-* **Developer:** [Jubayer Ahmad](https://github.com/monisharani333022-eng)
-* **Email:** [monisharani333022@gmail.com](mailto:monisharani333022@gmail.com)
+* **Developer:** [Jubayer Ahmad](https://github.com/Jubayer-AI-Studio)
+* **Email:** [jubayerahmadaistudio@gmail.com](mailto:jubayerahmadaistudio@gmail.com)
 * **Location:** Dhaka, Bangladesh 🇧🇩
 
 ---
